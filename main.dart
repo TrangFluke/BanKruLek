@@ -1,4 +1,4 @@
-import 'package: flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page.dart';
 import 'profile_page.dart';
@@ -135,30 +135,28 @@ class HomePage extends StatelessWidget {
               onPressed: () async {
                 final inputNick = nickCtl.text.trim();
                 final inputPass = passCtl.text;
+                final messenger = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(context);
 
                 final prefs = await SharedPreferences.getInstance();
-
-                if (!context.mounted) return; // <-- เพิ่มบรรทัดนี้
 
                 final savedNick = prefs.getString('nickname') ?? '';
                 final savedPass = prefs.getString('password') ?? '';
 
                 if (inputNick.isEmpty || inputPass.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(content: Text('กรอกให้ครบ')),
                   );
                   return;
                 }
 
                 if (inputNick == savedNick && inputPass == savedPass) {
-                  Navigator.pop(context); // ปิด dialog
-                  if (!context.mounted) return; // ป้องกันต่ออีกจุด
-                  Navigator.push(
-                    context,
+                  navigator.pop(); // ปิด dialog
+                  navigator.push(
                     MaterialPageRoute(builder: (_) => const ProfilePage()),
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     const SnackBar(
                         content: Text('ชื่อเล่นหรือรหัสผ่านไม่ถูกต้อง')),
                   );
