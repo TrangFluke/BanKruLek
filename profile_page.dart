@@ -6,7 +6,10 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('โปรไฟล์ติวเตอร์')),
+      appBar: AppBar(
+        title: const Text('โปรไฟล์ติวเตอร์'),
+        automaticallyImplyLeading: false,
+      ),
       body: Container(
         color: const Color(0xFFFFE4E1), // สีไข่ชมพู
         child: Column(
