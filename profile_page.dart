@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -13,6 +15,26 @@ class _ProfilePageState extends State<ProfilePage> {
   Uint8List? _profileImageBytes;
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final encoded = prefs.getString('profileImage');
+    if (encoded != null) {
+      try {
+        setState(() {
+          _profileImageBytes = base64Decode(encoded);
+        });
+      } catch (_) {
+        // ถ้า decode ไม่ได้ก็ไม่ต้องทำอะไร
+      }
+    }
+  }
+
   Future<void> _pickImage() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -21,6 +43,8 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           _profileImageBytes = bytes;
         });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('profileImage', base64Encode(bytes));
       }
     } catch (e) {
       if (mounted) {
