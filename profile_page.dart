@@ -5,7 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final String nickname;
+  const ProfilePage({super.key, required this.nickname});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -23,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _loadProfileImage() async {
     final prefs = await SharedPreferences.getInstance();
-    final encoded = prefs.getString('profileImage');
+    final encoded = prefs.getString('profileImage_${widget.nickname}');
     if (encoded != null) {
       try {
         setState(() {
@@ -44,7 +45,8 @@ class _ProfilePageState extends State<ProfilePage> {
           _profileImageBytes = bytes;
         });
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('profileImage', base64Encode(bytes));
+        await prefs.setString(
+            'profileImage_${widget.nickname}', base64Encode(bytes));
       }
     } catch (e) {
       if (mounted) {
