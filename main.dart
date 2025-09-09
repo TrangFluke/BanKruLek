@@ -148,8 +148,8 @@ class HomePage extends StatelessWidget {
                   return;
                 }
 
-                final accStr = prefs.getString('user_$inputNick');
-                if (accStr == null) {
+                final data = prefs.getString('accounts');
+                if (data == null) {
                   messenger.showSnackBar(
                     const SnackBar(content: Text('ไม่พบผู้ใช้นี้')),
                   );
@@ -157,7 +157,15 @@ class HomePage extends StatelessWidget {
                 }
 
                 try {
-                  final acc = jsonDecode(accStr) as Map<String, dynamic>;
+                  final map = jsonDecode(data) as Map<String, dynamic>;
+                  final acc = map[inputNick] as Map<String, dynamic>?;
+                  if (acc == null) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('ไม่พบผู้ใช้นี้')),
+                    );
+                    return;
+                  }
+
                   final savedPass = acc['password'] as String? ?? '';
                   if (inputPass == savedPass) {
                     navigator.pop(); // ปิด dialog
