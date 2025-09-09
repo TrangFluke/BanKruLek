@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page.dart';
@@ -140,9 +141,6 @@ class HomePage extends StatelessWidget {
 
                 final prefs = await SharedPreferences.getInstance();
 
-                final savedNick = prefs.getString('nickname') ?? '';
-                final savedPass = prefs.getString('password') ?? '';
-
                 if (inputNick.isEmpty || inputPass.isEmpty) {
                   messenger.showSnackBar(
                     const SnackBar(content: Text('กรอกให้ครบ')),
@@ -150,15 +148,32 @@ class HomePage extends StatelessWidget {
                   return;
                 }
 
-                if (inputNick == savedNick && inputPass == savedPass) {
-                  navigator.pop(); // ปิด dialog
-                  navigator.push(
-                    MaterialPageRoute(builder: (_) => const ProfilePage()),
-                  );
-                } else {
+                final accStr = prefs.getString('user_$inputNick');
+                if (accStr == null) {
                   messenger.showSnackBar(
-                    const SnackBar(
-                        content: Text('ชื่อเล่นหรือรหัสผ่านไม่ถูกต้อง')),
+                    const SnackBar(content: Text('ไม่พบผู้ใช้นี้')),
+                  );
+                  return;
+                }
+
+                try {
+                  final acc = jsonDecode(accStr) as Map<String, dynamic>;
+                  final savedPass = acc['password'] as String? ?? '';
+                  if (inputPass == savedPass) {
+                    navigator.pop(); // ปิด dialog
+                    navigator.push(
+                      MaterialPageRoute(
+                          builder: (_) => ProfilePage(nickname: inputNick)),
+                    );
+                  } else {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                          content: Text('ชื่อเล่นหรือรหัสผ่านไม่ถูกต้อง')),
+                    );
+                  }
+                } catch (_) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('ข้อมูลผู้ใช้ผิดพลาด')),
                   );
                 }
               },
