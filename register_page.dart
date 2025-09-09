@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,10 +34,25 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!ok) return;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("nickname", _nicknameCtl.text.trim());
-    await prefs.setString("phone", _phoneCtl.text.trim());
-    await prefs.setString("lineId", _lineCtl.text.trim());
-    await prefs.setString("password", _passwordCtl.text);
+    final nick = _nicknameCtl.text.trim();
+    final key = 'user_$nick';
+
+    if (prefs.containsKey(key)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('มีชื่อเล่นนี้อยู่แล้ว')),
+      );
+      return;
+    }
+
+    final account = {
+      'nickname': nick,
+      'phone': _phoneCtl.text.trim(),
+      'lineId': _lineCtl.text.trim(),
+      'password': _passwordCtl.text,
+    };
+
+    await prefs.setString(key, jsonEncode(account));
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
